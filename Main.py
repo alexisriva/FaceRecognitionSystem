@@ -39,13 +39,13 @@ class Main(QWidget):
         btnAnalize = QPushButton('Analizar')
         btnAnalize.setFixedSize(150, 40)
         btnAnalize.setFont(gui.QFont("Verdana", 10))
-        #btnUploadPhotos.clicked.connect(self. funcionAnalisis)
+        btnUploadPhotos.clicked.connect(self.funcionAnalisis)
 
 
         btnAnalizeVideo = QPushButton('Analizar Live Feed')
         btnAnalizeVideo.setFixedSize(150, 40)
         btnAnalizeVideo.setFont(gui.QFont("Verdana", 10))
-        # btnUploadPhotos.clicked.connect(self. funcionAnalisisVideo)
+        # btnUploadPhotos.clicked.connect(self.funcionAnalisisVideo)
 
         hbox_FileChooser = QHBoxLayout()
         hbox_FileChooser.addWidget(btnUploadPhotos);
@@ -80,9 +80,9 @@ class Main(QWidget):
 
         self.lblFileName2.setText(fileName)
 
-    # def funcionAnalisis(self):
-    #     self.lblFileName1.text().strip() es el link de las imagenes
-    #     self.lblFileName1.text().strip() es el link del directorio para guardar resultados
+    def funcionAnalisis(self):
+        self.lblFileName1.text().strip() es el link de las imagenes
+        self.lblFileName1.text().strip() es el link del directorio para guardar resultados
     #
     # def funcionAnalisisVideo(self):
     #     self.lblFileName1.text().strip() es el link de las imagenes
