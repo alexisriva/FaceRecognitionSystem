@@ -4,6 +4,7 @@ import os
 import cv2
 import face_recognition
 import numpy as np
+import pickle
 
 data_path = 'data/'
 test_path = 'test_data/'
@@ -40,12 +41,13 @@ def getImagesAndLabels(data_path=data_path):
     # Array of known face encodings 
     known_face_encodings = []
     known_face_ids=[]
+    all_face_encodings = {}
     
     for dirname, dirnames, filenames in os.walk(data_path):
         for filename in filenames:
             photo_path = os.path.join(dirname, filename)
             #print(photo_path)
-            face_id =int(photo_path.split("/")[-1].split(".")[0].split("_")[1])
+            face_id = int(photo_path.split("/")[-1].split(".")[0].split("_")[1])
             photo_type = photo_path.split("/")[-1].split(".")[0].split("_")[-1]
             
             if photo_type.lower() == "grupal":
@@ -74,10 +76,16 @@ def getImagesAndLabels(data_path=data_path):
                 
                 known_face_encodings.append(face_encoding)
                 known_face_ids.append(face_id)
+                # if dic[str(face_id)] in all_face_encodings:
+                #     all_face_encodings[dic[str(face_id)]].append(face_encoding)
+                # else:
+                #     all_face_encodings[dic[str(face_id)]] = [face_encoding]
             
             print(str(no_encoded) +" de "+str(total_data)+" sin encoding")
             print(str(total_test) + " para test")
     print("Entrenado")
+    # with open('test.txt', 'ab') as outfile:
+    #     pickle.dump(all_face_encodings, outfile)
     return known_face_encodings, known_face_ids, dic
 
 
@@ -109,7 +117,16 @@ def scaleFont(photo):
 
 def recognizePeople(known_face_encodings, known_face_ids, photo_dic, test_path=test_path, outpath=outpath):
     # test_data = []
+    # print(known_face_encodings)
+    # print(known_face_ids)
     test_data = getImagesToTest(test_path)
+    # all_face_encodings = {}
+    # with open('test.txt', 'rb') as infile:
+    #     all_face_encodings = pickle.load(infile)
+    # print(all_face_encodings)
+    # known_face_encodings = np.array(list(all_face_encodings.values()))
+    # print(known_face_encodings_from_file[0] == known_face_encodings[0])
+    # known_face_names = list(all_face_encodings.keys())
     for unknown_image in test_data:
         image_loaded = face_recognition.load_image_file(unknown_image)
         rgb_image = image_loaded[...,::-1]
@@ -117,15 +134,19 @@ def recognizePeople(known_face_encodings, known_face_ids, photo_dic, test_path=t
         face_encodings = face_recognition.face_encodings(rgb_image, face_locations)
         scaledFont = 1.0 * scaleFont(unknown_image)
         face_ids=[]
-        # print(len(face_encodings))
+        # face_names = []
+        print(len(face_encodings))
         for face_encoding in face_encodings:
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
             Id = -1
+            # name = "Unknown"
         
             if True in matches:
                 first_match_index = matches.index(True)
                 Id = known_face_ids[first_match_index]
+                # name = known_face_names[first_match_index]
                 face_ids.append(Id)
+                # face_names.append(name)
 
         for (top, right, bottom, left), Id in zip(face_locations, face_ids):
             # Draw a box around the face
@@ -133,13 +154,13 @@ def recognizePeople(known_face_encodings, known_face_ids, photo_dic, test_path=t
             
             # Draw a label with a name below the face
             font = cv2.FONT_HERSHEY_DUPLEX
-            imagen = cv2.putText(rec_image, photo_dic.get(str(Id), "No hubo match"), (left + 6, bottom + int(30*scaledFont)), font, scaledFont, (0, 0, 255), int(2*scaledFont))
-            output = "{}img_{}.jpg".format(outpath, Id)
+            imagen = cv2.putText(rec_image, photo_dic.get(str(Id)), (left + 6, bottom + int(30*scaledFont)), font, scaledFont, (0, 0, 255), int(2*scaledFont))
+            output = "{}/img_{}.jpg".format(outpath, Id)
             cv2.imwrite(output, imagen)
         
         # Display the resulting image
         #cv2.imshow('Video', imagen)
         #cv2.waitKey(0)
         #cv2.destroyAllWindows() 
-    #     print(face_ids)
-    # print(test_data)
+        print(face_ids)
+    print(test_data)

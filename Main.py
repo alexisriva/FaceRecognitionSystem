@@ -4,16 +4,18 @@ import PyQt5.QtGui as gui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QBoxLayout, QAction, QHBoxLayout, QFileDialog
 
 from proyecto import getImagesAndLabels, recognizePeople
-
-known_face_encodings, known_face_ids = [], []
-people_dic = {}
+from video import videoCap
 
 class Main(QWidget):
+
     def __init__(self):
         super().__init__()
         self.lblFileName1 = QLabel(None, self)
         self.lblFileName2 = QLabel(None, self)
         self.lblFileName3 = QLabel(None, self)
+        self.known_face_encodings = []
+        self.known_face_ids = []
+        self.people_dic = {}
         self.initUI()
 
     # Function to add widgets to the main window
@@ -56,12 +58,12 @@ class Main(QWidget):
         btnAnalize = QPushButton('Analizar')
         btnAnalize.setFixedSize(150, 40)
         btnAnalize.setFont(gui.QFont("Verdana", 10))
-        btnUploadPhotos.clicked.connect(self.funcionAnalisis)
+        btnAnalize.clicked.connect(self.funcionAnalisis)
 
         btnAnalizeVideo = QPushButton('Analizar Live Feed')
         btnAnalizeVideo.setFixedSize(150, 40)
         btnAnalizeVideo.setFont(gui.QFont("Verdana", 10))
-        # btnUploadPhotos.clicked.connect(self.funcionAnalisisVideo)
+        btnAnalizeVideo.clicked.connect(self.funcionAnalisisVideo)
 
         hbox_TrainChooser = QHBoxLayout()
         hbox_TrainChooser.addWidget(btnUploadTrain)
@@ -115,18 +117,21 @@ class Main(QWidget):
     def funcionEntrenar(self):
         data_path = self.lblFileName3.text().strip()
         print(data_path)
-        known_face_encodings, known_face_ids, people_dic = getImagesAndLabels(data_path)
+        self.known_face_encodings, self.known_face_ids, self.people_dic = getImagesAndLabels(data_path)
+        print(self.known_face_encodings)
+        print(self.known_face_ids)
 
 
     def funcionAnalisis(self):
         test = self.lblFileName1.text().strip()
         output = self.lblFileName2.text().strip()
-        recognizePeople(known_face_encodings, known_face_ids, people_dic, test, output)
+        recognizePeople(self.known_face_encodings, self.known_face_ids, self.people_dic, test, output)
     
 
-    # def funcionAnalisisVideo(self):
-    #     self.lblFileName1.text().strip() # es el link de las imagenes
-    #     self.lblFileName1.text().strip() # es el link del directorio para guardar resultados
+    def funcionAnalisisVideo(self):
+        # self.lblFileName1.text().strip()
+        # self.lblFileName1.text().strip()
+        videoCap(self.known_face_encodings, self.known_face_ids, self.people_dic)
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
